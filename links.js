@@ -18,7 +18,7 @@ const initialLinks = [
     { name: 'firebase-synced-player', url: 'https://jirka22med.github.io/firebase-synced-player/' },
     { name: 'Star Trek: Kapitoly', url: 'https://jirka22med.github.io/Pribehy-posadek-Enerprise/' },
     { name: 'Můj osobní web', url: 'https://jirka22med.github.io/muj-osobni-web/' },
-    { name: 'Example Link 8', url: 'https://example.com/link8' }, 
+    { name: 'Example Link 8', url: 'https://example.com/link8' },    
     { name: 'Example Link 9', url: 'https://example.com/link9' },
     { name: 'Example Link 10', url: 'https://example.com/link10' },
     { name: 'Example Link 11', url: 'https://example.com/link11' },
@@ -47,9 +47,9 @@ function toggleSyncMessage(show) {
     }
 }
 
-// Funkce pro dynamické plnění tabulky (UPRAVENO: Přidá tlačítka pro přesun)
+// Funkce pro dynamické plnění tabulky (UPRAVENO: Přidá tlačítka pro přesun A EDITACI)
 function populateLinksTable(links) {
-    linksTableBody.innerHTML = ''; 
+    linksTableBody.innerHTML = '';    
 
     if (links.length === 0) {
         const noDataRow = document.createElement('tr');
@@ -68,7 +68,7 @@ function populateLinksTable(links) {
                 <div class="action-buttons">
                     <button class="move-up-button" data-id="${link.id}" data-order="${link.orderIndex}" ${index === 0 ? 'disabled' : ''}>⬆️</button>
                     <button class="move-down-button" data-id="${link.id}" data-order="${link.orderIndex}" ${index === links.length - 1 ? 'disabled' : ''}>⬇️</button>
-                    <button class="delete-link-button" data-id="${link.id}">🗑️</button>
+                    <button class="edit-link-button" data-id="${link.id}" data-name="${link.name}" data-url="${link.url}">✏️</button> <button class="delete-link-button" data-id="${link.id}">🗑️</button>
                 </div>
             </td>
         `;
@@ -78,26 +78,65 @@ function populateLinksTable(links) {
         row.querySelector('.delete-link-button').addEventListener('click', async (e) => {
             const linkIdToDelete = e.target.dataset.id;
             if (confirm('Opravdu chcete smazat tento odkaz z Hvězdné databáze? Tato akce je nevratná.')) {
-                toggleSyncMessage(true); 
+                toggleSyncMessage(true);    
                 const success = await window.deleteLinkFromFirestore(linkIdToDelete);
                 if (success) {
-                    await loadAndDisplayLinks(); 
+                    await loadAndDisplayLinks();    
                 } else {
                     alert('Chyba při mazání odkazu. Zkuste to prosím znovu.');
                 }
-                toggleSyncMessage(false); 
+                toggleSyncMessage(false);    
             }
         });
 
         // Posluchače pro tlačítka přesunu
         row.querySelector('.move-up-button').addEventListener('click', async (e) => {
             const currentLink = { id: e.target.dataset.id, orderIndex: parseInt(e.target.dataset.order) };
-            await moveLink(currentLink, 'up', links); 
+            await moveLink(currentLink, 'up', links);    
         });
 
         row.querySelector('.move-down-button').addEventListener('click', async (e) => {
             const currentLink = { id: e.target.dataset.id, orderIndex: parseInt(e.target.dataset.order) };
-            await moveLink(currentLink, 'down', links); 
+            await moveLink(currentLink, 'down', links);    
+        });
+
+        // NOVÝ Posluchač pro tlačítko EDITACE
+        row.querySelector('.edit-link-button').addEventListener('click', async (e) => {
+            const linkIdToEdit = e.target.dataset.id;
+            const currentName = e.target.dataset.name;
+            const currentUrl = e.target.dataset.url;
+
+            // Použijeme prompt pro jednoduché získání nových hodnot
+            const newName = prompt('Zadejte nový název pro odkaz:', currentName);
+            // Zkontrolujeme, zda uživatel nezrušil prompt nebo nezadal prázdný název
+            if (newName === null || newName.trim() === '') {
+                alert('Editace zrušena nebo název odkazu nemůže být prázdný.');
+                return;
+            }
+
+            const newUrl = prompt('Zadejte novou URL pro odkaz:', currentUrl);
+            // Zkontrolujeme, zda uživatel nezrušil prompt nebo nezadal prázdnou URL
+            if (newUrl === null || newUrl.trim() === '') {
+                alert('Editace zrušena nebo URL odkazu nemůže být prázdná.');
+                return;
+            }
+
+            // Pokud jsou nové hodnoty stejné jako staré, nic nedělej
+            if (newName.trim() === currentName.trim() && newUrl.trim() === currentUrl.trim()) {
+                alert('Nebyly provedeny žádné změny.');
+                return;
+            }
+            
+            toggleSyncMessage(true); // Zobrazíme zprávu o synchronizaci
+            const success = await window.updateLinkInFirestore(linkIdToEdit, newName.trim(), newUrl.trim());
+            
+            if (success) {
+                alert('Odkaz byl úspěšně aktualizován!');
+                await loadAndDisplayLinks(); // Znovu načteme a zobrazíme odkazy
+            } else {
+                alert('Chyba při aktualizaci odkazu. Zkuste to prosím znovu.');
+            }
+            toggleSyncMessage(false); // Skryjeme zprávu o synchronizaci
         });
     });
 }
@@ -114,7 +153,7 @@ async function moveLink(currentLink, direction, allLinks) {
     }
 
     if (targetIndex !== -1) {
-        const targetLink = allLinks[targetIndex]; 
+        const targetLink = allLinks[targetIndex];    
 
         toggleSyncMessage(true);
         const success = await window.updateLinkOrderInFirestore(
@@ -123,7 +162,7 @@ async function moveLink(currentLink, direction, allLinks) {
         );
 
         if (success) {
-            await loadAndDisplayLinks(); 
+            await loadAndDisplayLinks();    
         } else {
             alert(`Chyba při přesouvání odkazu ${direction === 'up' ? 'nahoru' : 'dolů'}. Zkuste to prosím znovu.`);
         }
@@ -139,7 +178,7 @@ async function importInitialLinksToFirebase() {
     let successCount = 0;
     for (let i = 0; i < initialLinks.length; i++) {
         const link = initialLinks[i];
-        const success = await window.addLinkToFirestore(link.name, link.url, i); 
+        const success = await window.addLinkToFirestore(link.name, link.url, i);    
         if (success) {
             successCount++;
         } else {
@@ -148,19 +187,19 @@ async function importInitialLinksToFirebase() {
     }
     console.log(`links.js: Import dokončen. Úspěšně importováno ${successCount} z ${initialLinks.length} odkazů.`);
     toggleSyncMessage(false);
-    await loadAndDisplayLinks(); 
+    await loadAndDisplayLinks();    
 }
 
 
 // Funkce pro načtení a zobrazení odkazů
 async function loadAndDisplayLinks() {
-    toggleSyncMessage(true); 
+    toggleSyncMessage(true);    
 
     const firebaseInitialized = await window.initializeFirebaseLinksApp();
     if (!firebaseInitialized) {
         console.error("Chyba: Firebase pro odkazy nebylo inicializováno.");
         linksTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #dc3545;">Chyba: Nelze se připojit k databázi odkazů. Zkontrolujte připojení a Firebase konzoli.</td></tr>';
-        toggleSyncMessage(false); 
+        toggleSyncMessage(false);    
         return;
     }
 
@@ -175,7 +214,7 @@ async function loadAndDisplayLinks() {
 
     populateLinksTable(links);
     
-    toggleSyncMessage(false); 
+    toggleSyncMessage(false);    
 }
 
 // Obsluha přidání odkazu
@@ -185,19 +224,19 @@ if (addLinkButton) {
         const linkUrl = linkUrlInput.value.trim();
 
         if (linkName && linkUrl) {
-            toggleSyncMessage(true); 
+            toggleSyncMessage(true);    
             const currentLinks = await window.getLinksFromFirestore();
             const newOrderIndex = currentLinks.length > 0 ? Math.max(...currentLinks.map(l => l.orderIndex)) + 1 : 0;
 
             const success = await window.addLinkToFirestore(linkName, linkUrl, newOrderIndex);
             if (success) {
-                linkNameInput.value = ''; 
+                linkNameInput.value = '';    
                 linkUrlInput.value = '';
-                await loadAndDisplayLinks(); 
+                await loadAndDisplayLinks();    
             } else {
                 alert('Chyba při přidávání odkazu. Zkuste to prosím znovu.');
             }
-            toggleSyncMessage(false); 
+            toggleSyncMessage(false);    
         } else {
             alert('Prosím, zadejte název i URL odkazu.');
         }
