@@ -38,7 +38,16 @@ const addLinkButton = document.getElementById('addLinkButton');
 const linkNameInput = document.getElementById('linkName');
 const linkUrlInput = document.getElementById('linkUrl');
 const syncStatusMessageElement = document.getElementById('syncStatusMessage');
-const clearAllLinksButton = document.getElementById('clearAllLinksButton'); // NOVÉ: Tlačítko pro smazání všech odkazů
+const clearAllLinksButton = document.getElementById('clearAllLinksButton'); // Tlačítko pro smazání všech odkazů
+
+// NOVÉ: Získání odkazů na elementy modalu
+const editLinkModal = document.getElementById('editLinkModal');
+const modalLinkId = document.getElementById('modalLinkId');
+const modalLinkName = document.getElementById('modalLinkName');
+const modalLinkUrl = document.getElementById('modalLinkUrl');
+const saveEditButton = document.getElementById('saveEditButton');
+const cancelEditButton = document.getElementById('cancelEditButton');
+
 
 // Funkce pro zobrazení/skrytí zprávy o synchronizaci
 function toggleSyncMessage(show) {
@@ -46,6 +55,23 @@ function toggleSyncMessage(show) {
         syncStatusMessageElement.style.display = show ? 'block' : 'none';
     }
 }
+
+// NOVÉ: Funkce pro zobrazení modalu
+function showEditModal(id, name, url) {
+    modalLinkId.value = id; // Uložíme ID do skrytého pole
+    modalLinkName.value = name;
+    modalLinkUrl.value = url;
+    editLinkModal.style.display = 'flex'; // Zobrazíme modal (nastavíme flex pro centrování)
+}
+
+// NOVÉ: Funkce pro skrytí modalu
+function hideEditModal() {
+    editLinkModal.style.display = 'none'; // Skryjeme modal
+    modalLinkId.value = ''; // Vyčistíme hodnoty (dobrá praxe)
+    modalLinkName.value = '';
+    modalLinkUrl.value = '';
+}
+
 
 // Funkce pro dynamické plnění tabulky (UPRAVENO: Přidá tlačítka pro přesun A EDITACI)
 function populateLinksTable(links) {
@@ -100,43 +126,12 @@ function populateLinksTable(links) {
             await moveLink(currentLink, 'down', links);    
         });
 
-        // NOVÝ Posluchač pro tlačítko EDITACE
-        row.querySelector('.edit-link-button').addEventListener('click', async (e) => {
-            const linkIdToEdit = e.target.dataset.id;
-            const currentName = e.target.dataset.name;
-            const currentUrl = e.target.dataset.url;
-
-            // Použijeme prompt pro jednoduché získání nových hodnot
-            const newName = prompt('Zadejte nový název pro odkaz:', currentName);
-            // Zkontrolujeme, zda uživatel nezrušil prompt nebo nezadal prázdný název
-            if (newName === null || newName.trim() === '') {
-                alert('Editace zrušena nebo název odkazu nemůže být prázdný.');
-                return;
-            }
-
-            const newUrl = prompt('Zadejte novou URL pro odkaz:', currentUrl);
-            // Zkontrolujeme, zda uživatel nezrušil prompt nebo nezadal prázdnou URL
-            if (newUrl === null || newUrl.trim() === '') {
-                alert('Editace zrušena nebo URL odkazu nemůže být prázdná.');
-                return;
-            }
-
-            // Pokud jsou nové hodnoty stejné jako staré, nic nedělej
-            if (newName.trim() === currentName.trim() && newUrl.trim() === currentUrl.trim()) {
-                alert('Nebyly provedeny žádné změny.');
-                return;
-            }
-            
-            toggleSyncMessage(true); // Zobrazíme zprávu o synchronizaci
-            const success = await window.updateLinkInFirestore(linkIdToEdit, newName.trim(), newUrl.trim());
-            
-            if (success) {
-                alert('Odkaz byl úspěšně aktualizován!');
-                await loadAndDisplayLinks(); // Znovu načteme a zobrazíme odkazy
-            } else {
-                alert('Chyba při aktualizaci odkazu. Zkuste to prosím znovu.');
-            }
-            toggleSyncMessage(false); // Skryjeme zprávu o synchronizaci
+        // ÚPRAVA: Posluchač pro tlačítko EDITACE - nyní zobrazí modal místo promptu
+        row.querySelector('.edit-link-button').addEventListener('click', (e) => {
+            const linkId = e.target.dataset.id;
+            const linkName = e.target.dataset.name;
+            const linkUrl = e.target.dataset.url;
+            showEditModal(linkId, linkName, linkUrl); // Zobrazí modal s daty
         });
     });
 }
@@ -284,6 +279,46 @@ if (clearAllLinksButton) {
         } else {
             console.log("clearAllLinksButton: Mazání všech odkazů zrušeno uživatelem (1. fáze).");
         }
+    });
+}
+
+// NOVÉ: Posluchač pro tlačítko Uložit v modalu
+if (saveEditButton) {
+    saveEditButton.addEventListener('click', async () => {
+        const id = modalLinkId.value;
+        const newName = modalLinkName.value.trim();
+        const newUrl = modalLinkUrl.value.trim();
+
+        if (!newName || !newUrl) {
+            alert('Název ani URL odkazu nemohou být prázdné.');
+            return;
+        }
+
+        // Získání původních hodnot pro kontrolu, zda došlo ke změně
+        // V ideálním případě by se původní hodnoty měly získat z aktuálního stavu dat.
+        // Pro zjednodušení teď předpokládáme, že pokud uživatel klikne Save, očekává změnu,
+        // nebo se vrátí k prompt logice (což neděláme s modalem takto).
+        // Pro precizní kontrolu by se musel načíst konkrétní odkaz z Firebase.
+        // Nyní se budeme spoléhat na to, že updateLinkInFirestore se provede, pokud se zadají nové hodnoty.
+
+        toggleSyncMessage(true);
+        const success = await window.updateLinkInFirestore(id, newName, newUrl);
+        
+        if (success) {
+            alert('Odkaz byl úspěšně aktualizován!');
+            hideEditModal(); // Skryjeme modal
+            await loadAndDisplayLinks(); // Znovu načteme a zobrazíme odkazy
+        } else {
+            alert('Chyba při aktualizaci odkazu. Zkuste to prosím znovu.');
+        }
+        toggleSyncMessage(false);
+    });
+}
+
+// NOVÉ: Posluchač pro tlačítko Zrušit v modalu
+if (cancelEditButton) {
+    cancelEditButton.addEventListener('click', () => {
+        hideEditModal(); // Jednoduše skryjeme modal
     });
 }
 
