@@ -48,13 +48,47 @@ const modalLinkUrl = document.getElementById('modalLinkUrl');
 const saveEditButton = document.getElementById('saveEditButton');
 const cancelEditButton = document.getElementById('cancelEditButton');
 
+// NOVÉ: Časovač pro automatické skrytí zprávy
+let syncMessageTimeout;
 
-// Funkce pro zobrazení/skrytí zprávy o synchronizaci
-function toggleSyncMessage(show) {
-    if (syncStatusMessageElement) {
-        syncStatusMessageElement.style.display = show ? 'block' : 'none';
+// Funkce pro zobrazení/skrytí zprávy o synchronizaci (UPRAVENO: přidán text a typ zprávy)
+function toggleSyncMessage(show, message = "Probíhá synchronizace dat...", isError = false) {
+    if (!syncStatusMessageElement) {
+        console.warn("Element pro zprávu o synchronizaci nebyl nalezen.");
+        return;
+    }
+
+    clearTimeout(syncMessageTimeout); // Zrušíme případný předchozí časovač
+
+    syncStatusMessageElement.textContent = message;
+
+    if (isError) {
+        syncStatusMessageElement.classList.add('error'); // Přidáme třídu pro chybovou barvu
+    } else {
+        syncStatusMessageElement.classList.remove('error'); // Odebereme chybovou třídu
+    }
+
+    if (show) {
+        syncStatusMessageElement.style.opacity = '1';
+        syncStatusMessageElement.style.display = 'block';
+        // Nastavíme časovač pro automatické skrytí (po 4 sekundách pro chyby, 2 pro synchronizaci)
+        syncMessageTimeout = setTimeout(() => {
+            syncStatusMessageElement.style.opacity = '0'; // Zprůhledníme
+            // Po dokončení animace skryjeme úplně
+            syncStatusMessageElement.addEventListener('transitionend', function handler() {
+                syncStatusMessageElement.style.display = 'none';
+                syncStatusMessageElement.removeEventListener('transitionend', handler);
+            }, { once: true }); // Spustí se jen jednou
+        }, isError ? 4000 : 2000); // Doba zobrazení: 4s pro chyby, 2s pro synchronizaci
+    } else {
+        syncStatusMessageElement.style.opacity = '0'; // Zprůhledníme
+        syncStatusMessageElement.addEventListener('transitionend', function handler() {
+            syncStatusMessageElement.style.display = 'none';
+            syncStatusMessageElement.removeEventListener('transitionend', handler);
+        }, { once: true });
     }
 }
+
 
 // NOVÉ: Funkce pro zobrazení modalu
 function showEditModal(id, name, url) {
@@ -62,6 +96,7 @@ function showEditModal(id, name, url) {
     modalLinkName.value = name;
     modalLinkUrl.value = url;
     editLinkModal.style.display = 'flex'; // Zobrazíme modal (nastavíme flex pro centrování)
+    modalLinkName.focus(); // Zaměříme na první input v modalu
 }
 
 // NOVÉ: Funkce pro skrytí modalu
@@ -109,7 +144,7 @@ function populateLinksTable(links) {
                 if (success) {
                     await loadAndDisplayLinks();    
                 } else {
-                    alert('Chyba při mazání odkazu. Zkuste to prosím znovu.');
+                    toggleSyncMessage(true, 'Chyba při mazání odkazu. Zkuste to prosím znovu.', true); // Změněno na sync message
                 }
                 toggleSyncMessage(false);    
             }
@@ -159,7 +194,7 @@ async function moveLink(currentLink, direction, allLinks) {
         if (success) {
             await loadAndDisplayLinks();    
         } else {
-            alert(`Chyba při přesouvání odkazu ${direction === 'up' ? 'nahoru' : 'dolů'}. Zkuste to prosím znovu.`);
+            toggleSyncMessage(true, `Chyba při přesouvání odkazu ${direction === 'up' ? 'nahoru' : 'dolů'}. Zkuste to prosím znovu.`, true); // Změněno na sync message
         }
         toggleSyncMessage(false);
     }
@@ -212,7 +247,7 @@ async function loadAndDisplayLinks() {
     toggleSyncMessage(false);    
 }
 
-// Obsluha přidání odkazu
+// Obsluha přidání odkazu (UPRAVENO: Místo alertu používá toggleSyncMessage)
 if (addLinkButton) {
     addLinkButton.addEventListener('click', async () => {
         const linkName = linkNameInput.value.trim();
@@ -229,11 +264,12 @@ if (addLinkButton) {
                 linkUrlInput.value = '';
                 await loadAndDisplayLinks();    
             } else {
-                alert('Chyba při přidávání odkazu. Zkuste to prosím znovu.');
+                toggleSyncMessage(true, 'Chyba při přidávání odkazu. Zkuste to prosím znovu.', true); // Změněno na sync message
             }
             toggleSyncMessage(false);    
         } else {
-            alert('Prosím, zadejte název i URL odkazu.');
+            // ZMĚNA ZDE: Místo alertu se použije toggleSyncMessage s chybovou zprávou
+            toggleSyncMessage(true, 'Prosím, zadejte název i URL odkazu.', true);
         }
     });
 }
@@ -262,14 +298,14 @@ if (clearAllLinksButton) {
                     
                     if (deleteCount === allLinks.length) {
                         await loadAndDisplayLinks();
-                        alert('Všechny odkazy byly úspěšně smazány a databáze resetována!');
+                        toggleSyncMessage(true, 'Všechny odkazy byly úspěšně smazány a databáze resetována!'); // Změněno na sync message
                     } else {
-                        alert(`Smazáno pouze ${deleteCount} z ${allLinks.length} odkazů. Zkuste to prosím znovu.`);
+                        toggleSyncMessage(true, `Smazáno pouze ${deleteCount} z ${allLinks.length} odkazů. Zkuste to prosím znovu.`, true); // Změněno na sync message
                     }
                     
                 } catch (error) {
                     console.error("Chyba při mazání všech odkazů:", error);
-                    alert('Chyba při mazání všech odkazů. Zkuste to prosím znovu.');
+                    toggleSyncMessage(true, 'Chyba při mazání všech odkazů. Zkuste to prosím znovu.', true); // Změněno na sync message
                 }
                 
                 toggleSyncMessage(false);
@@ -282,7 +318,7 @@ if (clearAllLinksButton) {
     });
 }
 
-// NOVÉ: Posluchač pro tlačítko Uložit v modalu
+// NOVÉ: Posluchač pro tlačítko Uložit v modalu (UPRAVENO: Místo alertu používá toggleSyncMessage)
 if (saveEditButton) {
     saveEditButton.addEventListener('click', async () => {
         const id = modalLinkId.value;
@@ -290,28 +326,34 @@ if (saveEditButton) {
         const newUrl = modalLinkUrl.value.trim();
 
         if (!newName || !newUrl) {
-            alert('Název ani URL odkazu nemohou být prázdné.');
+            // ZMĚNA ZDE: Místo alertu se použije toggleSyncMessage s chybovou zprávou
+            toggleSyncMessage(true, 'Název ani URL odkazu nemohou být prázdné.', true);
             return;
         }
-
+        
         // Získání původních hodnot pro kontrolu, zda došlo ke změně
-        // V ideálním případě by se původní hodnoty měly získat z aktuálního stavu dat.
-        // Pro zjednodušení teď předpokládáme, že pokud uživatel klikne Save, očekává změnu,
-        // nebo se vrátí k prompt logice (což neděláme s modalem takto).
-        // Pro precizní kontrolu by se musel načíst konkrétní odkaz z Firebase.
-        // Nyní se budeme spoléhat na to, že updateLinkInFirestore se provede, pokud se zadají nové hodnoty.
+        // Aby se předešlo zbytečnému zápisu do Firebase, pokud se nic nezměnilo
+        const currentLinks = await window.getLinksFromFirestore();
+        const originalLink = currentLinks.find(link => link.id === id);
+
+        if (originalLink && newName === originalLink.name && newUrl === originalLink.url) {
+            toggleSyncMessage(true, 'Nebyly provedeny žádné změny.', false); // Informační zpráva (ne chyba)
+            hideEditModal();
+            return;
+        }
 
         toggleSyncMessage(true);
         const success = await window.updateLinkInFirestore(id, newName, newUrl);
         
         if (success) {
-            alert('Odkaz byl úspěšně aktualizován!');
+            toggleSyncMessage(true, 'Odkaz byl úspěšně aktualizován!'); // Změněno na sync message
             hideEditModal(); // Skryjeme modal
             await loadAndDisplayLinks(); // Znovu načteme a zobrazíme odkazy
         } else {
-            alert('Chyba při aktualizaci odkazu. Zkuste to prosím znovu.');
+            toggleSyncMessage(true, 'Chyba při aktualizaci odkazu. Zkuste to prosím znovu.', true); // Změněno na sync message
         }
-        toggleSyncMessage(false);
+        // toggleSyncMessage(false) je voláno automaticky po timeoutu pro sync message,
+        // a je voláno na konci bloku pro chyby, aby se zpráva po zobrazení skryla.
     });
 }
 
