@@ -217,21 +217,28 @@
         }
 
         /* Zprávy o synchronizaci */
-        .sync-status-message {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #00ff00;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-family: Arial, sans-serif;
-            font-size: 1em;
-            z-index: 1000;
-            display: none;    
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
-        }
+    .sync-status-message {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #00ff00; /* Výchozí barva pro úspěch/synchronizaci */
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-family: Arial, sans-serif;
+        font-size: 1em;
+        z-index: 1000;
+        display: none;    
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        transition: opacity 0.5s ease-in-out, background-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out; /* Přidáme animaci */
+    }
 
+    /* NOVÝ STYL PRO CHYBOVÉ ZPRÁVY */
+    .sync-status-message.error {
+        background-color: rgba(60, 0, 0, 0.8); /* Tmavě červené pozadí pro chybu */
+        color: #ff3333; /* Světlejší červená pro text chyby */
+        box-shadow: 0 0 15px rgba(255, 0, 0, 0.5); /* Červený glow */
+    }
         /* NOVÉ STYLY PRO MODAL */
         .modal-overlay {
             display: none; /* Skryté ve výchozím stavu */
@@ -369,12 +376,7 @@
             .modal-content h2 { font-size: 1.3em; margin-bottom: 15px; }
             .modal-buttons button { padding: 10px 15px; font-size: 1em; }
         }
-        * NOVÝ STYL PRO CHYBOVÉ ZPRÁVY */
-    .sync-status-message.error {
-        background-color: rgba(60, 0, 0, 0.8); /* Tmavě červené pozadí pro chybu */
-        color: #ff3333; /* Světlejší červená pro text chyby */
-        box-shadow: 0 0 15px rgba(255, 0, 0, 0.5); /* Červený glow */
-    }
+         
     </style>
 </head>
 <body>
