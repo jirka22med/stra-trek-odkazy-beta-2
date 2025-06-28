@@ -4,32 +4,31 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Star Trek Tabulka Odkazů</title>
-    <link rel="icon" href="https://img41.rajce.idnes.cz/d4102/19/19244/19244630_db82ad174937335b1a151341387b7af2/images/image_82x82.jpg?ver=1" type="image/png"> 
+    <link rel="icon" href="https://img41.rajce.idnes.cz/d4102/19/19244/19244630_db82ad174937335b1a151341387b7af2/images/image_82x82.jpg?ver=1" type="image/png">    
     <style>
-        
-
+        /* Základní styly zůstávají stejné */
         body {
             margin: 0;
-            padding: 0; 
+            padding: 0;    
             background-color: black;
             font-family: 'Orbitron', sans-serif;
             color: #00ffff;
-            line-height: 1.6; 
+            line-height: 1.6;    
         }
 
         .page-container {
-            width: 95%; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px 10px; 
+            width: 95%;    
+            max-width: 1200px;    
+            margin: 0 auto;    
+            padding: 20px 10px;    
         }
 
         h1 {
             text-align: center;
             color: #ffaa00;
-            padding: 20px 10px; 
-            font-size: 2.2em; 
-            margin-bottom: 20px; 
+            padding: 20px 10px;    
+            font-size: 2.2em;    
+            margin-bottom: 20px;    
         }
 
         .form-container {
@@ -38,7 +37,7 @@
             border: 2px solid #ffaa00;
             border-radius: 40px;
             padding: 5px;
-            margin-bottom: 30px; 
+            margin-bottom: 30px;    
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -53,7 +52,7 @@
 
         .form-container input[type="text"],
         .form-container input[type="url"] {
-            width: calc(100% - 20px); 
+            width: calc(100% - 20px);    
             padding: 10px;
             border: 1px solid #00ffff;
             border-radius: 5px;
@@ -73,7 +72,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            align-self: flex-end; 
+            align-self: flex-end;    
         }
 
         .form-container button:hover {
@@ -92,13 +91,13 @@
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            margin-bottom: 20px; 
-            display: block; 
+            margin-bottom: 20px;    
+            display: block;    
             width: 100%;
-            max-width: 300px; 
-            margin-left: auto; 
-            margin-right: auto; 
-            box-shadow: 0 0 10px rgba(220, 53, 69, 0.5); 
+            max-width: 300px;    
+            margin-left: auto;    
+            margin-right: auto;    
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);    
         }
 
         #clearAllLinksButton:hover {
@@ -108,12 +107,12 @@
 
 
         .table-scroll-wrapper {
-            overflow-x: auto; 
-            margin-bottom: 20px; 
-            border-radius: 12px; 
-            -webkit-overflow-scrolling: touch; 
-            scrollbar-width: thin; 
-            scrollbar-color: #ffaa00 #333; 
+            overflow-x: auto;    
+            margin-bottom: 20px;    
+            border-radius: 12px;    
+            -webkit-overflow-scrolling: touch;    
+            scrollbar-width: thin;    
+            scrollbar-color: #ffaa00 #333;    
         }
         
         .table-scroll-wrapper::-webkit-scrollbar {
@@ -130,62 +129,62 @@
         }
 
         table {
-            width: 100%; 
-            min-width: 600px; 
+            width: 100%;    
+            min-width: 600px;    
             border-collapse: collapse;
             background-color: #111;
             box-shadow: 0 0 20px #00ffff;
             border: 2px solid #ffaa00;
-            border-radius: 12px; 
-            overflow: hidden; 
+            border-radius: 12px;    
+            overflow: hidden;    
         }
 
         th, td {
-            padding: 12px 15px; 
+            padding: 12px 15px;    
             text-align: center;
-            font-size: 1em; 
-            border-bottom: 1px solid #2a2a2a; 
+            font-size: 1em;    
+            border-bottom: 1px solid #2a2a2a;    
             font-family: Arial, sans-serif;
-            color: #00ffff; 
+            color: #00ffff;    
         }
         
-        tr:last-child td { 
+        tr:last-child td {    
             border-bottom: none;
         }
 
         th {
             background-color: #ffaa00;
             color: #000;
-            font-weight: bold; 
+            font-weight: bold;    
             font-family: Arial, sans-serif;
         }
 
         td {
-            background-color: #001f2f; 
+            background-color: #001f2f;    
         }
 
         /* Odkazy – barva a efekt */
-        a { 
+        a {    
             color: #00ffff;
             text-decoration: none;
-            font-weight: bold; 
-            transition: color 0.3s ease, text-shadow 0.3s ease; 
+            font-weight: bold;    
+            transition: color 0.3s ease, text-shadow 0.3s ease;    
         }
 
         /* Zkrácení dlouhých odkazů pomocí "…" */
         td a {
-            display: inline-block; 
-            max-width: 280px; 
+            display: inline-block;    
+            max-width: 280px;    
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            vertical-align: middle; 
+            vertical-align: middle;    
         }
 
         a:hover {
-            color: #ffdd88; 
-            text-decoration: none; 
-            text-shadow: 0 0 8px #ffdd88; 
+            color: #ffdd88;    
+            text-decoration: none;    
+            text-shadow: 0 0 8px #ffdd88;    
         }
 
         /* Tlačítka pro mazání a úpravy v tabulce */
@@ -229,9 +228,105 @@
             font-family: Arial, sans-serif;
             font-size: 1em;
             z-index: 1000;
-            display: none; 
+            display: none;    
             box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
         }
+
+        /* NOVÉ STYLY PRO MODAL */
+        .modal-overlay {
+            display: none; /* Skryté ve výchozím stavu */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Poloprůhledné černé pozadí */
+            z-index: 2000; /* Nad vším ostatním */
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px); /* Jemné rozostření pozadí */
+        }
+
+        .modal-content {
+            background-color: #1a1a1a; /* Tmavé pozadí modalu */
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid #ffaa00; /* Zlatý okraj */
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.7); /* Modrozelený glow */
+            width: 90%;
+            max-width: 500px;
+            color: #00ffff; /* Modrozelený text */
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            position: relative; /* Pro zavírací tlačítko */
+        }
+
+        .modal-content h2 {
+            color: #ffaa00; /* Zlatý nadpis */
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #00ffff;
+            text-align: left;
+        }
+
+        .modal-content input[type="text"],
+        .modal-content input[type="url"] {
+            width: calc(100% - 20px); /* Odečteme padding */
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #00ffff;
+            border-radius: 8px;
+            background-color: #0d0d0d;
+            color: #00ffff;
+            font-size: 1em;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            flex-grow: 1; /* Aby se tlačítka roztáhla */
+            padding: 12px 25px;
+            border: none;
+            border-radius: 40px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+        }
+
+        .modal-buttons button#saveEditButton {
+            background-color: #00aa00; /* Zelená pro uložení */
+            color: white;
+            box-shadow: 0 0 10px rgba(0, 170, 0, 0.5);
+        }
+
+        .modal-buttons button#saveEditButton:hover {
+            background-color: #00cc00;
+            box-shadow: 0 0 15px rgba(0, 170, 0, 0.8);
+        }
+
+        .modal-buttons button#cancelEditButton {
+            background-color: #dc3545; /* Červená pro zrušení */
+            color: white;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+        }
+
+        .modal-buttons button#cancelEditButton:hover {
+            background-color: #ff6677;
+            box-shadow: 0 0 15px rgba(220, 53, 69, 0.8);
+        }
+
 
         /* Media Queries pro responzivitu */
         @media (max-width: 992px) {
@@ -240,6 +335,8 @@
             th, td { padding: 10px 12px; font-size: 0.95em; }
             td a { max-width: 220px; }
             table { min-width: 550px; }
+            .modal-content { max-width: 450px; padding: 25px; }
+            .modal-content h2 { font-size: 1.6em; }
         }
 
         @media (max-width: 768px) {
@@ -248,6 +345,8 @@
             td a { max-width: 180px; }
             table { min-width: 500px; }
             .table-scroll-wrapper::-webkit-scrollbar { height: 6px; }
+            .modal-content { max-width: 400px; padding: 20px; }
+            .modal-content h2 { font-size: 1.5em; }
         }
 
         @media (max-width: 576px) {
@@ -256,6 +355,9 @@
             th, td { padding: 6px 8px; font-size: 0.85em; }
             td a { max-width: 150px; }
             table { min-width: 450px; }
+            .modal-content { max-width: 350px; padding: 15px; }
+            .modal-content h2 { font-size: 1.4em; }
+            .modal-buttons { flex-direction: column; gap: 10px; } /* Na malých obrazovkách tlačítka pod sebou */
         }
         
         @media (max-width: 400px) {
@@ -263,6 +365,9 @@
             th, td { font-size: 0.8em; padding: 5px; }
             td a { max-width: 120px; }
             table { min-width: 380px; }
+            .modal-content { max-width: 300px; padding: 10px; }
+            .modal-content h2 { font-size: 1.3em; margin-bottom: 15px; }
+            .modal-buttons button { padding: 10px 15px; font-size: 1em; }
         }
     </style>
 </head>
@@ -303,6 +408,21 @@
         Probíhá synchronizace dat...
     </div>
 
+    <div id="editLinkModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Upravit odkaz</h2>
+            <input type="hidden" id="modalLinkId"> <label for="modalLinkName">Název odkazu:</label>
+            <input type="text" id="modalLinkName" required>
+
+            <label for="modalLinkUrl">URL adresa:</label>
+            <input type="url" id="modalLinkUrl" required>
+
+            <div class="modal-buttons">
+                <button id="saveEditButton">Uložit změny</button>
+                <button id="cancelEditButton">Zrušit</button>
+            </div>
+        </div>
+    </div>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     
