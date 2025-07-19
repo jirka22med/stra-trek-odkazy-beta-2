@@ -62,8 +62,8 @@
             font-size: 1em;
         }
 
-        .form-container button, #jirik-manual-opener-btn {
-            display: grid;
+        .form-container button{
+           
             background-color: #ffaa00;
             color: #000;
             border: none;
@@ -80,7 +80,16 @@
             background-color: #ffdd88;
             box-shadow: 0 0 10px #ffdd88;
         }
-
+        tlacitka{
+           display: grid;
+        grid-template-columns: repeat(4, 1fr);
+       
+        gap: 0.5rem;
+        justify-items: center;
+        align-items: center;  
+        text-align: center;    
+            
+        }
         /* NOVÉ: Styly pro tlačítko "Smazat všechny odkazy" */
         #clearAllLinksButton {
             background-color: #dc3545; /* Červená pro nebezpečnou akci */
@@ -390,11 +399,11 @@
 
             <label for="linkUrl"> </label>
             <input type="url" id="linkUrl" placeholder="Např. https://www.startrek.com" required>
-            
+            <div class="tlacitka">
             <button id="addLinkButton">Přidat odkaz</button>
            <button id="jirik-manual-opener-btn" >🧾</button>
         </div>
-          
+          </div>
         <button id="clearAllLinksButton" style="display: none">Smazat všechny odkazy 🗑️</button>
 
         <div class="table-scroll-wrapper">
